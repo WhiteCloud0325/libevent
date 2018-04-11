@@ -852,8 +852,12 @@ int event_base_loop(struct event_base *, int);
     or NULL to exit after running all currently active events.
   @return 0 if successful, or -1 if an error occurred
   @see event_base_loopbreak()
-  在特定时间后 退出事件循环
-  
+  在特定时间后 退出事件循环。
+  在定时器到时时，event_base_loop()迭代完成，没有事件阻塞离开。
+  后续调用event_base_loop()将正常运行。
+  @param eb event_base结构体指针
+  @param tv loop中断时间，为NULL时当所有激活事件运行完事时离开
+  @return 0 成功返回0，失败返回-1
  */
 EVENT2_EXPORT_SYMBOL
 int event_base_loopexit(struct event_base *, const struct timeval *);
