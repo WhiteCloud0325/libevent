@@ -2094,7 +2094,7 @@ event_base_once(struct event_base *base, evutil_socket_t fd, short events,
 int
 event_assign(struct event *ev, struct event_base *base, evutil_socket_t fd, short events, void (*callback)(evutil_socket_t, short, void *), void *arg)
 {
-	if (!base)
+	if (!base)                      //如果base为NULL，则添加到全局的event_global_current_base_
 		base = current_base;
 	if (arg == &event_self_cbarg_ptr_)
 		arg = ev;
@@ -2188,11 +2188,11 @@ struct event *
 event_new(struct event_base *base, evutil_socket_t fd, short events, void (*cb)(evutil_socket_t, short, void *), void *arg)
 {
 	struct event *ev;
-	ev = mm_malloc(sizeof(struct event));
-	if (ev == NULL)
-		return (NULL);
-	if (event_assign(ev, base, fd, events, cb, arg) < 0) {
-		mm_free(ev);
+	ev = mm_malloc(sizeof(struct event));    //在堆上分配内存
+	if (ev == NULL)                   //判断内存是否分配失败
+		return (NULL);                 //分配失败返回NULL    
+	if (event_assign(ev, base, fd, events, cb, arg) < 0){ // 分配成功调用event_assign 函数，函数返回值成功>=0 返回ev
+		mm_free(ev);						// 失败<0 收回内存，返回NULL						
 		return (NULL);
 	}
 
