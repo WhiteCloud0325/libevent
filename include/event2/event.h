@@ -1016,6 +1016,12 @@ int event_base_got_break(struct event_base *);
    @param arg A user-supplied argument.
 
    @see event_new()
+
+   event的回调函数，它有三个参数
+   @param fd  文件描述符或是信号
+   @param events event的标志位
+   @param arg 用户支持的参数
+
  */
 typedef void (*event_callback_fn)(evutil_socket_t, short, void *);
 
@@ -1091,6 +1097,17 @@ void *event_self_cbarg(void);
   @return a newly allocated struct event that must later be freed with
     event_free() or NULL if an error occurred.
   @see event_free(), event_add(), event_del(), event_assign()
+
+  event_new()用来创建一个event结构体
+  @param base 指定event关联的event_base
+  @param fd 文件描述符或是信号，如果events参数为0，不设置任何标志位，fd=-1，需要timeout或是手动event_active()来触发
+  @param events 可选 EV_READ，EV_WRITE,EV_SIGNAL,EV_PERSIST,EV_ET,  EV_TIMEOUT在这里用不上，没有意义
+  @param callback 回调函数 event_callback_fn 函数指针，三个参数，fd 文件描述符，events触发的条件，
+                  EV_READ, EV_WRITE,  EV_SIGNAL， EV_TIMEOUT起作用
+                  void* arg 用户提供的参数
+  @param callback_arg 对应 callback的第三个参数，由用户提供
+  @return event 指针
+  event_new内部调用 event
  */
 EVENT2_EXPORT_SYMBOL
 struct event *event_new(struct event_base *, evutil_socket_t, short, event_callback_fn, void *);
@@ -1133,6 +1150,11 @@ struct event *event_new(struct event_base *, evutil_socket_t, short, event_callb
 
   @see event_new(), event_add(), event_del(), event_base_once(),
     event_get_struct_event_size()
+
+
+  event_assign 在event_base 是上添加一个已经分配内存的event结构体，而event_new是自己内部创建一个event 然后调用event_assign
+  对一个pending或是active的event 调用此函数不安全
+  @return 成功返回0，失败返回-1
   */
 EVENT2_EXPORT_SYMBOL
 int event_assign(struct event *, struct event_base *, evutil_socket_t, short, event_callback_fn, void *);
